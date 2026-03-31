@@ -35,3 +35,6 @@ nome.map(n => console.log (n))
    let telefone = "(61) 1234-5678"
    const escondido = telefone.replace("(61)", "(**)");
    console.log(escondido);
+
+
+   //eloa
