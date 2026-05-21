@@ -33,3 +33,8 @@ let listaHabilidades = [
     new Habilidade(3, "🏹 chuva de flechas", 40, 30, 0)
 
 ];
+listaHabilidades.forEach(hab => {
+    let btn = document.createElement("button"); //<button>
+    btn.innerText = hab.nome; 
+    CSSContainerRule.appendChild(btn);
+ }); //adiciona o botão ao container
