@@ -45,6 +45,7 @@ class personagem {
             this.energia -= 0;
         }else {
             this.energia += 20;
+        }
     }
 }
 
