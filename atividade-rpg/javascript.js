@@ -1,4 +1,4 @@
-class personagem {
+class Personagem {
     constructor(nome, titulo, hp, mana, energia) {
         this.nome = nome;
         this.titulo = titulo;
@@ -14,7 +14,10 @@ class personagem {
             this.energia >= habilidade.energia
         ) {
 
-            alvo.hp -= habilidade.dano;
+            alvo.hp = Math.max(
+                0,
+                alvo.hp - habilidade.dano
+            );
 
             // gastar mana
             if (habilidade.custo > 0) {
@@ -35,22 +38,46 @@ class personagem {
 
         } else {
 
-            console.log("Sem mana ou energia suficiente.");
+            console.log(
+                "Sem mana ou energia suficiente."
+            );
 
         }
     }
+
     boss_atacar(alvo) {
+
         if (this.energia >= 100) {
-            alvo.hp -= 25;
-            this.energia -= 0;
-        }else {
+
+            alvo.hp = Math.max(
+                0,
+                alvo.hp - 25
+            );
+
+            this.energia -= 100;
+
+            console.log(
+                `${this.nome} atacou ${alvo.nome}`
+            );
+
+            console.log(
+                `${alvo.nome} ficou com ${alvo.hp} HP`
+            );
+
+        } else {
+
             this.energia += 20;
+
+            console.log(
+                `${this.nome} carregou energia (${this.energia}/100)`
+            );
+
         }
     }
 }
 
 
-class ataque {
+class Ataque {
     constructor(id, nome, dano, custo, energia) {
         this.id = id;
         this.nome = nome;
@@ -61,8 +88,8 @@ class ataque {
 }
 
 
-// instancia classes - criar objetos
-let hero = new personagem(
+// criar personagens
+let hero = new Personagem(
     "R-01",
     "A arqueira",
     100,
@@ -70,7 +97,7 @@ let hero = new personagem(
     0
 );
 
-let boss = new personagem(
+let boss = new Personagem(
     "Azog",
     "O guerreiro polvo",
     100,
@@ -79,40 +106,62 @@ let boss = new personagem(
 );
 
 
-// preencher os status
-document.getElementById("nome-hero")
-.textContent = hero.nome;
+// preencher informações
+document.getElementById("nome-hero").textContent =
+    hero.nome;
 
-document.getElementById("titulo-hero")
-.textContent = hero.titulo;
+document.getElementById("titulo-hero").textContent =
+    hero.titulo;
 
 
-// criar habilidades
+// habilidades
 let listaHabilidades = [
-    new ataque(1, "🎯 Tiro certeiro", 20, 10, 0),
-    new ataque(2, "💥 Explosão de flechas", 30, 20, 0),
-    new ataque(3, "🏹 Chuva de flechas", 40, 30, 0)
+    new Ataque(1, "🎯 Tiro certeiro", 20, 10, 0),
+    new Ataque(2, "💥 Explosão de flechas", 30, 20, 0),
+    new Ataque(3, "🏹 Chuva de flechas", 40, 30, 0)
 ];
 
 
 // container dos botões
-let containerBtn = document.getElementById("controles");
+let containerBtn =
+    document.getElementById("controles");
 
 
-// mostrar habilidades na tela
+// criar botões
 listaHabilidades.forEach(hab => {
 
     let btn = document.createElement("button");
 
     btn.innerText = hab.nome;
 
-    btn.classList.add("btn", "btn-primary");
+    btn.classList.add(
+        "btn",
+        "btn-primary"
+    );
 
     btn.addEventListener("click", () => {
 
-        hero.hero_atacar(boss, hab);
+        if (
+            hero.hp <= 0 ||
+            boss.hp <= 0
+        ) {
+            return;
+        }
+
+        // herói ataca
+        hero.hero_atacar(
+            boss,
+            hab
+        );
+
+        // boss responde
+        if (boss.hp > 0) {
+            boss.boss_atacar(hero);
+        }
 
         atualizarTela();
+
+        verificarFimDeJogo();
 
     });
 
@@ -121,18 +170,80 @@ listaHabilidades.forEach(hab => {
 });
 
 
-// atualizar tela
-const atualizarTela = () => {
+// atualizar interface
+function atualizarTela() {
 
-    // HP do boss
-    document.getElementById("hp-boss").value = boss.hp;
+    // HP herói
+    document.getElementById(
+        "hp-hero"
+    ).value = hero.hp;
 
-    // Mana do herói
-    document.getElementById("mp-hero").value = hero.mana;
+    // HP boss
+    document.getElementById(
+        "hp-boss"
+    ).value = boss.hp;
 
-    // Energia do herói
-    document.getElementById("en-hero").value = hero.energia;
-};
+    // Mana herói
+    document.getElementById(
+        "mp-hero"
+    ).value = hero.mana;
+
+    // Energia herói
+    document.getElementById(
+        "en-hero"
+    ).value = hero.energia;
+
+    document.getElementById("hp-boss").value = azog.hp;
+    document.getElementById("mp-boss").value = azog.mana;
+    document.getElementById("en-boss").value = azog.energia;
+
+}
+
+
+// game over
+function game_over() {
+
+    alert("☠️ GAME OVER!");
+
+    document
+        .querySelectorAll(
+            "#controles button"
+        )
+        .forEach(btn => {
+            btn.disabled = true;
+        });
+
+}
+
+
+// vitória
+function vitoria() {
+
+    alert("🏆 VOCÊ VENCEU!");
+
+    document
+        .querySelectorAll(
+            "#controles button"
+        )
+        .forEach(btn => {
+            btn.disabled = true;
+        });
+
+}
+
+
+// verificar resultado
+function verificarFimDeJogo() {
+
+    if (hero.hp <= 0) {
+        game_over();
+    }
+
+    if (boss.hp <= 0) {
+        vitoria();
+    }
+
+}
 
 
 // iniciar tela
